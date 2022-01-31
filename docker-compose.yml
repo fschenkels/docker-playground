@@ -5,3 +5,18 @@ services:
     image: kennethreitz/httpbin
     ports:
       - "9876:80" # if you speficy only this line, with no network on the service, the host port is available to the host OS
+    networks:
+      - playground-network
+
+  # if you don't provide network, this container can't access the httpbin port
+  ubuntu:
+    container_name: my-ubuntu
+    build:
+      context: .
+      dockerfile: ubuntu/Dockerfile
+    networks:
+      - playground-network
+
+  network:
+    playground-network:
+      drive: bridge
