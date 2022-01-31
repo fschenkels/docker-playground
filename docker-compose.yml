@@ -3,20 +3,21 @@ services:
   httpbin:
     container_name: simple-httpbin
     image: kennethreitz/httpbin
-    ports:
-      - "9876:80" # if you speficy only this line, with no network on the service, the host port is available to the host OS
+    #ports:
+    #  - "9876:80" # if you speficy only this line: the host port is available to the host OS
     networks:
-      - playground-network
+      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      - playground
 
-  # if you don't provide network, this container can't access the httpbin port
   ubuntu:
     container_name: my-ubuntu
     build:
       context: .
       dockerfile: ubuntu/Dockerfile
     networks:
-      - playground-network
+      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      - playground
 
-  network:
-    playground-network:
-      drive: bridge
+networks:
+  playground:
+    driver: bridge
