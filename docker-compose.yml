@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  httpbin:
+    container_name: simple-httpbin
+    image: kennethreitz/httpbin
+  ports:
+    - "9876:80"
