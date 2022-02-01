@@ -4,10 +4,14 @@ services:
     container_name: simple-httpbin
     image: kennethreitz/httpbin
     #ports:
-    #  - "9876:80" # if you speficy only this line: the host port is available to the host OS
+    #  - "9876:80" # if you uncomment this line then the 9876 port is available to the host OS
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
-      - playground
+      playground:
+        aliases:
+          # this way any container using this network will talk to the simple-httpbin
+          # container, even when trying to access the httpbin.org through the internet
+          - httpbin.org
 
   ubuntu:
     container_name: my-ubuntu
@@ -17,7 +21,14 @@ services:
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
       - playground
+    #extra_hosts: # I *think* that this is how you add contents to the /etc/hosts file
+    #  - "httpbin.org:httpbin"
+
+  nginx:
+    image: nginx
+    networks:
+      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      - playground
 
 networks:
-  playground:
-    driver: bridge
+  playground: # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
