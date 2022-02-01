@@ -1,34 +1,45 @@
 version: "3.9"
 services:
   httpbin:
-    container_name: simple-httpbin
+    container_name: local-httpbin
     image: kennethreitz/httpbin
     #ports:
     #  - "9876:80" # if you uncomment this line then the 9876 port is available to the host OS
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
-      playground:
+      separate:
         aliases:
           # this way any container using this network will talk to the simple-httpbin
           # container, even when trying to access the httpbin.org through the internet
           - httpbin.org
 
-  ubuntu:
+  ubuntu1:
     container_name: my-ubuntu
     build:
       context: .
       dockerfile: ubuntu/Dockerfile
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
-      - playground
+      - common
     #extra_hosts: # I *think* that this is how you add contents to the /etc/hosts file
-    #  - "httpbin.org:httpbin"
+    #  - "<hostname>:<ip>"
+
+  ubuntu2:
+    build:
+      context: .
+      dockerfile: ubuntu/Dockerfile
+    networks:
+      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      - common
+      - separate
 
   nginx:
     image: nginx
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
-      - playground
+      - common
 
 networks:
-  playground: # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
+  # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
+  common:
+  separate:
