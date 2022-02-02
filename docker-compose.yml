@@ -44,4 +44,5 @@ services:
 networks:
   # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
   common:
+    external: true
   separate:
