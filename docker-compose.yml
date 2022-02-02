@@ -33,9 +33,18 @@ services:
       - common
       - separate
 
+  fedora:
+    extends:
+      file: sub-project/docker-compose.yml
+      service: fedora
+    build:
+      context: sub-project
+    depends_on:
+      - nginx
+
   nginx:
     build:
-      context: ../nginx
+      context: nginx
     ports:
       - "9999:80" # if you uncomment this line then the 9876 port is available to the host OS
     networks:
