@@ -34,9 +34,11 @@ services:
       - separate
 
   nginx:
-    image: nginx
+    build:
+      context: nginx
+    ports:
+      - "9999:80" # if you uncomment this line then the 9876 port is available to the host OS
     networks:
-      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
       - common
 
 networks:
