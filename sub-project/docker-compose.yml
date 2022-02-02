@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  fedora:
+    container_name: fedora
+    build:
+      context: .
+      dockerfile: fedora/Dockerfile
+    networks:
+      - common
+
+networks:
+  # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
+  common:
+    external: true
