@@ -2,9 +2,11 @@ version: "3.9"
 services:
   fedora:
     container_name: fedora
+    depends_on:
+      - nginx
     build:
       context: .
-      dockerfile: fedora/Dockerfile
+      dockerfile: sub-project/fedora/Dockerfile
     networks:
       - common
 
