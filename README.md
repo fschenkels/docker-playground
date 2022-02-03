@@ -3,76 +3,110 @@ Free area to test interesting `docker` features. I hope that this repo will be a
 
 Remember to take a look at the other branches as well, probably you'll find nice things there ;)
 
-## Current state of the `main` branch
-There are 4 services in the `main` branch:
-* nginx
-* ubuntu1 (container `my-ubuntu`)
-* ubuntu2
-* httpbin (container `local-httpbin`)
-
-The containers `nginx`, `ubuntu1` and `ubuntu2` are connected through the network `common`. However, the container `local-httpbin` is only connected to the container `ubuntu2` through the `separate` network. Just like in the following diagram:
-```
-            +-----------+
-            |   NGINX   |
-            +-----.-----+
-                  | ,common network
-                  |/                     ,separate network
-+-----------+     |     +-----------+   /       +-----------+
-|  ubuntu1  |-----+-----|  ubuntu2  |-----------|  local-   |
-+-----------+           +-----------+           |  httpbin  |
-                                                +-----------+
-```
-The `local-httpbin` is only reachable from the `ubuntu2` container.
-```
-            
-   common 
-   network
-   (external)
-         ................................................................
-         .   +-----------+   .                                          .
-      ,------|   NGINX   |   .                                          .
-      |  .   +-----------+   .                                          .
-      |  .                   .                                          .
-      |  .                   .                                          .
-      |  .   +-----------+                       .                                          .
-      |  .   |  fedora   |-------.               .                                          .
-      |  .   +-----------+       |               .                                          .
-      |  .                       |               .                                          .
-      |  .                       |               .                                          .
-      |  .    +-----------+      |               .                                          .
-      |  .    |  fedora   |------'               .                                          .
-      |  .    +-----------+                      .                                          .
-      |  .   +-----------+   .    +-----------+                         .
-      +------|  fedora   |------->|  fedora   |-------.                 -
-      |  .   +-----------+   .    +-----------+       |                 .
-      |  .                   .                        |                 .
-      |  .   +-----------+   .                        |                 .
-      +------|  ubuntu1  |   .     +-----------+      |                 .
-      |  .   +-----------+   .     |  fedora   |------'                 .
-      |  .                   .     +-----------+                        .
-      |  .   +-----------+   .                                          .
-      '------|  ubuntu2  |   .                                          .
-         .   +-----------+   .                                          .
-         ................................................................
-         .                   .
-         .                   .
-         .         | ,common network
-         .         |/                     ,separate network
-     |   .  +-----------+   /       +-----------+
------+---.--|  ubuntu2  |-----------|  local-   |
-         .  +-----------+           |  httpbin  |
-                                                +-----------+
-
-
-
-
-
-```
-
-Besides that, when you try to access the `httpbin.org` from the containers `nginx` and `ubuntu1` your request goes to the official's `httpbin` website. However, when you try to do this from the `ubuntu2` container your request goes to the `local-httpbin` container instead (because the `local-httpbin` container defines a label inside the `separate` network).
-
 ## Current state of the `subfolder_docker_compose_file` branch:
+There are 2 projects on this branch, with their individual `docker-compose` files:
+* The root project (`./docker-compose.yml`); and
+* The sub-project (`./sub-project/docker-compose.yml`)
 
+The current root project has some differences from the `main` branch's root project:
+1. The `local-httpbin` container has been moved to the `sub-project`;
+2. The `common` network has been converted into an external network, and now it is shared with the `sub-project`'s services;
+3. There is a new service `root-fedora`, which extends the `sub-project`'s `fedora` service; and
+4. The `separate` network has been removed.
+
+The `sub-project` has a simple `fedora` service connected to its `httpbin` service.
+
+Below you find a diagram that represents the current branch configuration:
+```
+                 ............................................
+                 :       :  sub-project/docker-compose.yml  : 
+                 :       :..................................:
+                 :                                          :
+                 :                    ,sub-project network  :
+                 :                   /                      :    .................
+                 :   +-----------+  /       +-----------+   .....:  sub-project  :
+            ,--------|  fedora   |----------|  httpbin  |   :    :...............:
+            |    :   +-----------+          +-----------+   :
+            |    :        /\                                : 
+            |    :        ||                                : 
+            |    :........||................................:
+            |    :        ||       :  ./docker-compose.yml  :
+            |    :        ||       :........................: 
+            |    :        ||                                : 
+            |    :        ||== extension relationship       : 
+            |    :        ||                                : 
+            |    :   +-----------+                          :
+            |    :   |  root-    |                          :
+            +--------|  fedora   |                          :
+common      |    :   +-----------+                          :
+network     |    :                                          :
+(external)  |    :   +-----------+                          :    .................
+         \  |--------|   NGINX   |                          :....:  root project :
+          \ |    :   +-----------+                          :    :...............:
+           \|    :                                          :
+            |    :   +-----------+                          :
+            +--------|  ubuntu1  |                          :
+            |    :   +-----------+                          :
+            |    :                                          :
+            |    :   +-----------+                          :
+            '--------|  ubuntu2  |                          :
+                 :   +-----------+                          :
+                 :                                          : 
+                 :..........................................:
+```
+
+## Getting started
+**WARNING:**
+You must either include the `sub-project/docker-compose.yml` file in all of your `docker-compose` commands or convert the `sub-project-network` into an external network.
+```
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose ps
+ERROR: Service "root-fedora" uses an undefined network "sub-project-network"
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml ps
+Name   Command   State   Ports
+------------------------------
+```
+
+The following steps show you a way to run both projets at the same time:
+1. Start the `root-fedora` service from the root project:
+```
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml up -d root-fedora
+Building nginx
+[...]
+Building root-fedora
+[...]
+Creating docker-playground_nginx_1 ... done
+Creating extended-fedora           ... done
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml ps
+          Name                         Command               State          Ports
+-----------------------------------------------------------------------------------------
+docker-playground_nginx_1   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:9999->80/tcp
+extended-fedora             sleep infinity                   Up
+```
+2. Start the services from the sub-project:
+```
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f sub-project/docker-compose.yml up -d
+Building fedora
+[...]
+Creating local-httpbin ... done
+Creating fedora        ... done
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f sub-project/docker-compose.yml ps
+    Name                   Command               State   Ports
+---------------------------------------------------------------
+fedora          sleep infinity                   Up
+local-httpbin   gunicorn -b 0.0.0.0:80 htt ...   Up      80/tcp
+```
+3. Then, you can verify that both projects are running in separated environments:
+```
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml exec root-fed
+ora curl http://httpbin.org/ip
+{
+  "origin": "*** my external IP appeared here ***"
+}
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f sub-project/docker-compose.yml exec fedora curl http://httpbin.org/ip
+{
+  "origin": "*** one local IP appeared here ***"
+}
+```
 
 ## Tips and Tricks
 * When you run `docker-compose exec` you must specify the service name, not the container name. Like in `docker-compose exec ubuntu1 /bin/bash`.

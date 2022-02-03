@@ -1,25 +1,12 @@
 version: "3.9"
 services:
-  httpbin:
-    container_name: local-httpbin
-    image: kennethreitz/httpbin
-    #ports:
-    #  - "9876:80" # if you uncomment this line then the 9876 port is available to the host OS
-    networks:
-      # if you put this network here, then the inner ports are exposed to all the other container that joined the same network
-      separate:
-        aliases:
-          # this way any container using this network will talk to the simple-httpbin
-          # container, even when trying to access the httpbin.org through the internet
-          - httpbin.org
-
   ubuntu1:
     container_name: my-ubuntu
     build:
       context: .
       dockerfile: ubuntu/Dockerfile
     networks:
-      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      # if you put this network here, then the inner ports are exposed to all the other container that joined the same network
       - common
     #extra_hosts: # I *think* that this is how you add contents to the /etc/hosts file
     #  - "<hostname>:<ip>"
@@ -31,15 +18,16 @@ services:
     networks:
       # if you put this network here, then the inner ports are exposed to all the other container that joined same network
       - common
-      - separate
 
-  fedora:
+  root-fedora:
     extends:
       file: sub-project/docker-compose.yml
       service: fedora
+    container_name: extended-fedora
     build:
-      context: sub-project
+      context: ./sub-project
     depends_on:
+      # services with `depends_on` cannot be extended, however you can use it in the extension itself 
       - nginx
 
   nginx:
@@ -54,4 +42,3 @@ networks:
   # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
   common:
     external: true
-  separate:

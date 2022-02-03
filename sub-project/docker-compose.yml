@@ -1,5 +1,18 @@
 version: "3.9"
 services:
+  httpbin:
+    container_name: local-httpbin
+    image: kennethreitz/httpbin
+    #ports:
+    #  - "9876:80" # if you uncomment this line then the 9876 port is available to the host OS
+    networks:
+      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      sub-project-network:
+        aliases:
+          # this way any container using this network will talk to the simple-httpbin
+          # container, even when trying to access the httpbin.org through the internet
+          - httpbin.org
+
   fedora:
     container_name: fedora
     build:
@@ -7,8 +20,10 @@ services:
       dockerfile: fedora/Dockerfile
     networks:
       - common
+      - sub-project-network
 
 networks:
   # https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
+  sub-project-network:
   common:
     external: true
