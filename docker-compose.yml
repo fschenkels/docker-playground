@@ -6,7 +6,7 @@ services:
     #ports:
     #  - "9876:80" # if you uncomment this line then the 9876 port is available to the host OS
     networks:
-      # if you put this network here, then the inner ports are exposed to all the other container that joined same network
+      # if you put this network here, then the inner ports are exposed to all the other container that joined the same network
       separate:
         aliases:
           # this way any container using this network will talk to the simple-httpbin

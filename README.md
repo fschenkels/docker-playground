@@ -1,5 +1,7 @@
 # docker-playground
-Free area to test whatever you want to
+Free area to test interesting `docker` features. I hope that this repo will be an useful project templates library for you.
+
+Remember to take a look at the other branches as well, probably you'll find nice things there ;)
 
 ## Current state of the `main` branch
 There are 4 services in the `main` branch:
