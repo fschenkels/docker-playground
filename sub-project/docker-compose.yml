@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: fedora/Dockerfile
+      target: standalone
     networks:
       - common
       - sub-project-network

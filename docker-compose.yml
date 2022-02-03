@@ -26,6 +26,7 @@ services:
     container_name: extended-fedora
     build:
       context: ./sub-project
+      target: extended
     depends_on:
       # services with `depends_on` cannot be extended, however you can use it in the extension itself 
       - nginx
