@@ -19,43 +19,35 @@ The `sub-project` has a simple `fedora` service connected to its `httpbin` servi
 Below you find a diagram that represents the current branch configuration:
 ```
                  ............................................
-                 :       :  sub-project/docker-compose.yml  : 
+                 :       :  sub-project/docker-compose.yml  :
                  :       :..................................:
                  :                                          :
-                 :                    ,sub-project network  :
+                 :                    ,sub-project-network  :
                  :                   /                      :    .................
                  :   +-----------+  /       +-----------+   .....:  sub-project  :
             ,--------|  fedora   |----------|  httpbin  |   :    :...............:
             |    :   +-----------+          +-----------+   :
-            |    :        /\                                : 
-            |    :        ||                                : 
+            |    :        /\                                :
+            |    :        ||                                :
             |    :........||................................:
-            |    :        ||       :  ./docker-compose.yml  :
-            |    :        ||       :........................: 
-            |    :        ||                                : 
-            |    :        ||== extension relationship       : 
-            |    :        ||                                : 
-            |    :   +-----------+                          :
-            |    :   |  root-    |                          :
-            +--------|  fedora   |                          :
-common      |    :   +-----------+                          :
-network     |    :                                          :
-(external)  |    :   +-----------+                          :    .................
-         \  |--------|   NGINX   |                          :....:  root project :
-          \ |    :   +-----------+                          :    :...............:
-           \|    :                                          :
-            |    :   +-----------+                          :
-            +--------|  ubuntu1  |                          :
-            |    :   +-----------+                          :
+common      |    :        ||       :  ./docker-compose.yml  :
+network     |    :        ||       :........................:
+(external)  |    :        ||                                :
+         \  |    :        ||== extension relationship       :
+          \ |    :        ||                                :
+           \|    :   +-----------+                          :
+            |    :   |  root-    |                          :    .................
+            +--------|  fedora   |                          :....:  root project :
+            |    :   +-----------+                          :    :...............:
             |    :                                          :
             |    :   +-----------+                          :
-            '--------|  ubuntu2  |                          :
+            '--------|   NGINX   |                          :
                  :   +-----------+                          :
-                 :                                          : 
+                 :                                          :
                  :..........................................:
 ```
 
-## Getting started
+### Getting started
 **WARNING:**
 You must either include the `sub-project/docker-compose.yml` file in all of your `docker-compose` commands or convert the `sub-project-network` into an external network.
 ```
