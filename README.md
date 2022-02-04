@@ -3,7 +3,7 @@ Free area to test interesting `docker` features. I hope that this repo will be a
 
 Remember to take a look at the other branches as well, probably you'll find nice things there ;)
 
-## Current state of the `subfolder_docker_compose_file` branch:
+## Current state of the `sub-project_extension` branch:
 There are 2 projects on this branch, with their individual `docker-compose` files:
 * The root project (`./docker-compose.yml`); and
 * The sub-project (`./sub-project/docker-compose.yml`)
