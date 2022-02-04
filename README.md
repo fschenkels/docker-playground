@@ -8,13 +8,12 @@ There are 2 projects on this branch, with their individual `docker-compose` file
 * The root project (`./docker-compose.yml`); and
 * The sub-project (`./sub-project/docker-compose.yml`)
 
-The current root project has some differences from the `main` branch's root project:
-1. The `local-httpbin` container has been moved to the `sub-project`;
-2. The `common` network has been converted into an external network, and now it is shared with the `sub-project`'s services;
-3. There is a new service `root-fedora`, which extends the `sub-project`'s `fedora` service; and
-4. The `separate` network has been removed.
+The `sub-project` has a `local-httpbin` container and a simple `fedora` container.
+The root project has a service called `root-fedora`, which extends the `sub-project`'s `fedora` ; and a simple `nginx` container.
 
-The `sub-project` has a simple `fedora` service connected to its `httpbin` service.
+There is an external network called `common` that connects the root project and the `sub-project`'s containers, with the exception of the `local-httpbin` container. The `local-httpbin` is only reachable by the `fedora` container through the `sub-project-network`.
+
+Notice that the `fedora`'s Dockerfile has 2 build stages. The first stage is used to build the `fedora` container and both the first and the second ones are used to build the `root-fedora` container. Additionally, the `root-fedora` container depends on the `nginx` container.
 
 Below you find a diagram that represents the current branch configuration:
 ```
@@ -87,10 +86,9 @@ Creating fedora        ... done
 fedora          sleep infinity                   Up
 local-httpbin   gunicorn -b 0.0.0.0:80 htt ...   Up      80/tcp
 ```
-3. Then, you can verify that both projects are running in separated environments:
+3. Then, you can verify that only the `fedora` has access to the `local-httpbin`:
 ```
-➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml exec root-fed
-ora curl http://httpbin.org/ip
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml exec root-fedora curl http://httpbin.org/ip
 {
   "origin": "*** my external IP appeared here ***"
 }
@@ -99,9 +97,23 @@ ora curl http://httpbin.org/ip
   "origin": "*** one local IP appeared here ***"
 }
 ```
+4. And, that only the `root-fedora` has the cowsay command:
+```
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f sub-project/docker-compose.yml exec fedora cowsay hi
+OCI runtime exec failed: exec failed: container_linux.go:380: starting container process caused: exec: "cowsay": executable file not found in $PATH: unknown
+➜  docker-playground git:(subfolder_docker_compose_file) ✗ docker-compose -f docker-compose.yml -f sub-project/docker-compose.yml exec root-fedora cowsay hi
+ ____
+< hi >
+ ----
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+```
 
 ## Tips and Tricks
 * When you run `docker-compose exec` you must specify the service name, not the container name. Like in `docker-compose exec ubuntu1 /bin/bash`.
 * When you run `docker exec` you must specify the container name. Like in `docker exec -i -t my-ubuntu /bin/bash`.
 * Services with `depends_on` cannot be extended (see [this](https://github.com/docker/compose/issues/7916#issuecomment-962869400) issue). For more information on extending services visit [this](https://docs.docker.com/compose/extends/) page.
-
+* When building an image, you cannot `ADD` or `COPY` from outside of your build context.
