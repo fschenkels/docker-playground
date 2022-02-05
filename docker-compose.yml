@@ -20,13 +20,13 @@ services:
       - common
 
   root-fedora:
-    extends:
-      file: sub-project/docker-compose.yml
-      service: fedora
     container_name: extended-fedora
     build:
-      context: ./sub-project
+      context: .
+      dockerfile: sub-project/fedora/Dockerfile
       target: extended
+      args:
+        DEPENDENCIES_PATH: sub-project/fedora/dependencies
     depends_on:
       # services with `depends_on` cannot be extended, however you can use it in the extension itself 
       - nginx

@@ -9,10 +9,12 @@ RUN useradd -ms /bin/bash jacare
 
 USER jacare
 WORKDIR /home/jacare
+# after the WORKDIR directive, all the ADD directives relative destination paths are
+# relative to the WORKDIR, however, you still can use absolute paths
 ADD ${DEPENDENCIES_PATH}/dependency.py .
 
 ENTRYPOINT [ "sleep", "infinity" ]
 
 FROM base AS extended
 
-ADD root-fedora/app/ /home/jacare
+ADD root-fedora/app/ .

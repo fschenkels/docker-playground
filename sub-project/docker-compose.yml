@@ -19,8 +19,6 @@ services:
       context: .
       dockerfile: fedora/Dockerfile
       target: base
-      #args:
-      #  DEPENDENCIES_PATH: fedora/dependencies
     networks:
       - common
       - sub-project-network
