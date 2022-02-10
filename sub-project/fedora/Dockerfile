@@ -13,6 +13,8 @@ WORKDIR /home/jacare
 # relative to the WORKDIR, however, you still can use absolute paths
 ADD ${DEPENDENCIES_PATH}/dependency.py .
 
+RUN mkdir ~/log
+
 ENTRYPOINT [ "sleep", "infinity" ]
 
 FROM base AS extended
