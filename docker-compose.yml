@@ -27,6 +27,8 @@ services:
       target: extended
       args:
         DEPENDENCIES_PATH: sub-project/fedora/dependencies
+    volumes:
+      - ./root-fedora/log:/home/jacare/log
     depends_on:
       # services with `depends_on` cannot be extended, however you can use it in the extension itself 
       - nginx
